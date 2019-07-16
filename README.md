@@ -73,7 +73,7 @@ farResult = ds.readall();
 4. [MATLAB Parallel Server™](https://www.mathworks.com/products/distriben.html) (R2017b or later)
 
 ## License
-The license for the MATLAB Interface *for AWS DynamoDB* is available in the [LICENSE.TXT](LICENSE.TXT) file in this GitHub repository. This package uses certain third-party content which is licensed under separate license agreements. See the [pom.xml](Software/Java/pom.xml) file for third-party software downloaded at build time.
+The license for the MATLAB Interface *for AWS Athena* is available in the [LICENSE.TXT](LICENSE.TXT) file in this GitHub repository. This package uses certain third-party content which is licensed under separate license agreements. See the [pom.xml](Software/Java/pom.xml) file for third-party software downloaded at build time.
 
 ## Enhancement Request
 Provide suggestions for additional features or capabilities using the following link:   
