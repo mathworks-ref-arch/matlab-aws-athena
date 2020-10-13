@@ -23,7 +23,7 @@
   <properties>
     <awsjava2sdk.version>2.5.49</awsjava2sdk.version>
     <awsjavasdk.version>1.11.569</awsjavasdk.version>
-    <junit.version>4.12</junit.version>
+    <junit.version>4.13.1</junit.version>
   </properties>
   <build>
     <plugins>
