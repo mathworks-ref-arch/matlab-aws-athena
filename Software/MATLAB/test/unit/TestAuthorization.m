@@ -210,7 +210,7 @@ classdef TestAuthorization < matlab.unittest.TestCase
     methods
         function [ath, queryStr, resultBucket] = getDefaultClient(~)
             dbName = 'MyAirlines.airlines';
-            resultBucket = 's3://anders-bash-r2018b/airlineresult';
+            resultBucket = 's3://testpsp/airlineresult';
             distLimit = 1000;
             
             %% Connect to database
