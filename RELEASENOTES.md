@@ -1,5 +1,8 @@
 #  MATLAB Interface *for AWS Athena* - Release Notes
 
+## Release 0.2.3 (22th Mar 2021)
+* Fixed minor issue with naming of bucket
+
 ## Release 0.2.2 (13th Oct 2020)
 * Bumped junit version
 
