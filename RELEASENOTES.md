@@ -1,5 +1,10 @@
 #  MATLAB Interface *for AWS Athena* - Release Notes
 
+## Release 0.2.4 (1st Oct 2020)
+* Added basic proxy support
+* Updated AWS SDK, junit & Maven Shade versions
+* Add stopQueryExecution method
+
 ## Release 0.2.3 (22th Mar 2021)
 * Fixed minor issue with naming of bucket
 

@@ -7,6 +7,8 @@ classdef TestSimpleQuery < matlab.unittest.TestCase
     
     properties
         logObj
+        dbName = 'myairlines.airlines';
+        resultBucket = 's3://athenapspunittest/airlineresult';
     end
     
     methods (TestMethodSetup)
@@ -48,20 +50,86 @@ classdef TestSimpleQuery < matlab.unittest.TestCase
             testCase.verifyEmpty(athena.Handle);
         end
         
+        function testProxyInvalid(testCase)
+            write(testCase.logObj,'debug','Testing testProxyInValid');
+            % Create the client and initialize
+            athena = aws.athena.AthenaClient();
+            
+            athena.ProxyConfiguration.host = 'myproxy.example.com';
+            athena.ProxyConfiguration.port = 8080;
+            
+            if testCase.isOnGitlab
+                doAlternativeInitialize(testCase, athena)
+            else
+                athena.initialize();
+            end
+            
+            try
+                
+                athena.Database = testCase.dbName;
+                distLimit = 1000;
+                queryStr = sprintf('SELECT UniqueCarrier, distance FROM %s WHERE distance > %d;', ...
+                    testCase.dbName, distLimit);
+                testCase.verifyError(@()athena.submitQuery(queryStr, testCase.resultBucket), 'MATLAB:Java:GenericException');
+                
+                testCase.verifyNotEmpty(athena.Handle);
+                athena.shutdown();
+                testCase.verifyEmpty(athena.Handle);
+            catch ME
+                testCase.verifyTrue(false, sprintf("Error occured: %s\n", ME.message));
+            end
+            
+            % Clear proxy values in Java
+            java.lang.System.clearProperty("http.proxyHost")
+            java.lang.System.clearProperty("http.proxyPort")
+            java.lang.System.clearProperty("http.proxyUser")
+            java.lang.System.clearProperty("http.proxyPassword")
+            
+        end
+        
+        function testProxyValid(testCase)
+            write(testCase.logObj,'debug','Testing testProxyValid');
+            athena = aws.athena.AthenaClient();
+            
+            athena.ProxyConfiguration.host = getenv('TEST_PROXY');
+            athena.ProxyConfiguration.port = 3128;
+            
+            if testCase.isOnGitlab
+                doAlternativeInitialize(testCase, athena)
+            else
+                athena.initialize();
+            end
+            
+            try
+                athena.Database = testCase.dbName;
+                distLimit = 1000;
+                queryStr = sprintf('SELECT UniqueCarrier, distance FROM %s WHERE distance > %d;', ...
+                    testCase.dbName, distLimit);
+                resultID = athena.submitQuery(queryStr, testCase.resultBucket);
+                
+                testCase.verifyNotEmpty(resultID);
+                
+                testCase.verifyNotEmpty(athena.Handle);
+                athena.shutdown();
+                
+                testCase.verifyEmpty(athena.Handle);
+            catch ME
+                testCase.verifyTrue(false, sprintf("Error occured: %s\n", ME.message));
+            end
+            
+            % Clear proxy values in Java
+            java.lang.System.clearProperty("http.proxyHost")
+            java.lang.System.clearProperty("http.proxyPort")
+            java.lang.System.clearProperty("http.proxyUser")
+            java.lang.System.clearProperty("http.proxyPassword")
+        end
+        
         function fullTest(testCase)
             write(testCase.logObj,'debug','Testing fullTest');
             % Create the client and initialize
             
-            % dbName = 'testdb';
-            % tableName = 'newtable';
-            dbName = 'MyAirlines';
-            tableName = 'flights';
-            % srcBucket = 's3://testpsp/unittestsrc';
-            % resultBucket = 's3://testpsp/unittestresult';
-            % srcBucket = 's3://testpsp/airline';
-            resultBucket = 's3://testpsp/airlineresult';
             athena = aws.athena.AthenaClient();
-            athena.Database = [dbName, '.', tableName];
+            athena.Database = testCase.dbName;
             
             if testCase.isOnGitlab
                 doAlternativeInitialize(testCase, athena)
@@ -75,7 +143,7 @@ classdef TestSimpleQuery < matlab.unittest.TestCase
             queryStr = sprintf('SELECT UniqueCarrier, distance FROM %s WHERE distance > %d;', ...
                 athena.Database, 1000);
             [queryId, queryStatus] = syncSubmitQuery(athena, ...
-                queryStr, resultBucket);
+                queryStr, testCase.resultBucket);
             testCase.verifyEqual(queryStatus, 'SUCCEEDED', ...
                 'The query should be successful');
             
@@ -87,9 +155,9 @@ classdef TestSimpleQuery < matlab.unittest.TestCase
     % Helper methods
     methods
         function doAlternativeInitialize(testCase, ath)
-            reg = getenv('REGION');
-            awsKeyId = getenv('AWSACCESSKEYID');
-            awsSecretKey = getenv('SECRETACCESSKEY');
+            reg = getenv('AWS_DEFAULT_REGION')
+            awsKeyId = getenv('AWS_ACCESS_KEY_ID')
+            awsSecretKey = getenv('AWS_SECRET_ACCESS_KEY')
             
             cp = aws.auth.CredentialProvider.getBasicCredentialProvider(awsKeyId, awsSecretKey);
             cls = 'software.amazon.awssdk.auth.credentials.StaticCredentialsProvider';

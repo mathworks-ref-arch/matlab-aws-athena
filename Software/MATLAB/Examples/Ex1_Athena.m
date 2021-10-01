@@ -29,8 +29,8 @@
 %% Setup values 
 % These two values should correspond to the database and result bucket
 % in use.
-dbName = 'MyAirlines.flights';
-resultBucket = 's3://testpsp/airlineresult';
+dbName = 'myairlines.airlines';
+resultBucket = 's3://athenapspunittest/airlineresult';
 distLimit = 1000;
 
 %% Connect to database

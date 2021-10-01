@@ -15,9 +15,10 @@ classdef AthenaClient < aws.Object
     %    % Shutdown the client when no longer needed
     %    ath.shutdown();
     
-    % Copyright 2018-2019 The MathWorks, Inc.
+    % Copyright 2018-2021 The MathWorks, Inc.
     
     properties
+        ProxyConfiguration = struct('host', '', 'port', [], 'password', '', 'username', '');
         Database = '';
         TimeOut = 10000;
     end
@@ -33,7 +34,7 @@ classdef AthenaClient < aws.Object
             write(logObj,'verbose','Creating Client');
             % error if JVM is not enabled or MATLAB is too old
             if ~usejava('jvm')
-                write(logObj,'error','MATLAB must be used with the JVM enabled to access AWS DynamoDB');
+                write(logObj,'error','MATLAB must be used with the JVM enabled to access AWS Athena');
             end
             if verLessThan('matlab','9.3') % R2017a
                 write(logObj,'error','MATLAB Release 2017b or newer is required');

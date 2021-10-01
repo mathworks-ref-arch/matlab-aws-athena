@@ -9,7 +9,7 @@ Particularly if using other AWS tools or services the first methods can be more 
 ## Credential Provider Chain
 When a client is initialized, by default, it attempts to find AWS credentials by using the default credential provider chain as implemented by the AWS SDK. This looks for credentials in this order:
 
-1. Environment variables: *AWS_ACCESS_KEY_ID*, *AWS_REGION* and *AWS_SECRET_ACCESS_KEY*.
+1. Environment variables: *AWS_ACCESS_KEY_ID*, *AWS_DEFAULT_REGION* and *AWS_SECRET_ACCESS_KEY*.
 2. Java system properties: *aws.accessKeyId* and *aws.secretKey*.
 3. The default credential profiles file, typically store in *~/.aws/credentials* (Linux) or *c:\\Users\\username\\.aws\\* (Windows) and shared by many of the AWS SDKs and by the AWS CLI. A credentials file can be created by using the aws configure command provided by the AWS CLI, or by editing the file with a text editor. For information about the credentials file format, see AWS Credentials File Format: <https://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/credentials.html#credentials-file-format>.
 4. Amazon™ ECS™ container credentials are loaded from the Amazon ECS if the environment variable *AWS_CONTAINER_CREDENTIALS_RELATIVE_URI* is set.
@@ -19,9 +19,9 @@ For more information on the credential provider chain see: <https://docs.aws.ama
 
 
 ### Using Environment variables
-The environment variables *AWS_ACCESS_KEY_ID*, *AWS_REGION* and *AWS_SECRET_ACCESS_KEY* must be set in the process context used to start MATLAB®, that is the must be set before MATLAB is started and cannot be set using the MATLAB *setenv* command as they must be set in the context of the MATLAB JVM. One can verify if they have been set correctly using the following command rather than the MATLAB *getenv* command:
+The environment variables *AWS_ACCESS_KEY_ID*, *AWS_DEFAULT_REGION* and *AWS_SECRET_ACCESS_KEY* must be set in the process context used to start MATLAB®, that is the must be set before MATLAB is started and cannot be set using the MATLAB *setenv* command as they must be set in the context of the MATLAB JVM. One can verify if they have been set correctly using the following command rather than the MATLAB *getenv* command:
 ```
-java.lang.System.getenv('AWS_REGION')
+java.lang.System.getenv('AWS_DEFAULT_REGION')
 
 ans =
 

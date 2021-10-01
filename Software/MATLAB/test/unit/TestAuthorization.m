@@ -3,7 +3,7 @@ classdef TestAuthorization < matlab.unittest.TestCase
     %
     % The test suite exercises the basic operations on the Athena Client.
     
-    % Copyright 2018-2019 The MathWorks, Inc.
+    % Copyright 2018-2021 The MathWorks, Inc.
     
     
     properties
@@ -19,7 +19,7 @@ classdef TestAuthorization < matlab.unittest.TestCase
     end
     
     methods (TestMethodTeardown)
-        function testTearDown(testCase)
+        function testTearDown(testCase) %#ok<MANU>
             
         end
     end
@@ -35,8 +35,7 @@ classdef TestAuthorization < matlab.unittest.TestCase
                 doAlternativeInitialize(testCase, ath)
             else
                 ath.initialize();
-            end
-            
+            end            
             
             resultID = ath.submitQuery(queryStr, resultBucket);
             
@@ -89,14 +88,14 @@ classdef TestAuthorization < matlab.unittest.TestCase
             testCase.assertTrue(isjava(cp), 'It should be a Java class');
             args = {'credentialsprovider', cp};
             if testCase.isOnGitlab
-                args = [args, 'region', getenv('REGION')];
+                args = [args, 'region', getenv('AWS_DEFAULT_REGION')];
             end
             ath.initialize(args{:});
             
             try
-                resultID = ath.submitQuery(queryStr, resultBucket);
+                resultID = ath.submitQuery(queryStr, resultBucket); %#ok<NASGU>
                 testCase.assertTrue(false, 'This authentication method should fail, but it didn''t');
-            catch ex
+            catch ex %#ok<NASGU>
                 % All well, we failed.
             end
             
@@ -115,7 +114,7 @@ classdef TestAuthorization < matlab.unittest.TestCase
             
             args = {'credentialsprovider', cp};
             if testCase.isOnGitlab
-                args = [args, 'region', getenv('REGION')];
+                args = [args, 'region', getenv('AWS_DEFAULT_REGION')];
             end
             ath.initialize(args{:});
             
@@ -139,9 +138,9 @@ classdef TestAuthorization < matlab.unittest.TestCase
             else
                 
                 % Pick content provider here
-                %  This temporary credeeeeentials provider must be created
+                %  This temporary credentials provider must be created
                 %  before the test is run.
-                cp = aws.auth.CredentialProvider.getProfileCredentialProvider('win');
+                cp = aws.auth.CredentialProvider.getProfileCredentialProvider('default');
                 
                 ath.initialize('credentialsprovider', cp);
             end
@@ -165,15 +164,15 @@ classdef TestAuthorization < matlab.unittest.TestCase
             
             args = {'credentialsprovider', cp};
             if testCase.isOnGitlab
-                args = [args, 'region', getenv('REGION')];
+                args = [args, 'region', getenv('AWS_DEFAULT_REGION')];
             end
             ath.initialize(args{:});
             
             
             try
-                resultID = ath.submitQuery(queryStr, resultBucket);
+                resultID = ath.submitQuery(queryStr, resultBucket); %#ok<NASGU>
                 testCase.assertTrue(false, 'This authentication method should fail, but it didn''t');
-            catch ex
+            catch ex %#ok<NASGU>
                 % All well, we failed.
             end
             
@@ -198,9 +197,10 @@ classdef TestAuthorization < matlab.unittest.TestCase
             
             
             try
-                resultID = ath.submitQuery(queryStr, resultBucket);
+                resultID = ath.submitQuery(queryStr, resultBucket); %#ok<NASGU>
             catch ex
-                testCase.assertTrue(false, 'This authentication method failed.\n%s\n', ex.message);
+                testCase.assertTrue(false, ...
+                    sprintf('This authentication method failed.\n%s\n', ex.message));
             end
             
         end
@@ -209,8 +209,8 @@ classdef TestAuthorization < matlab.unittest.TestCase
     
     methods
         function [ath, queryStr, resultBucket] = getDefaultClient(~)
-            dbName = 'MyAirlines.airlines';
-            resultBucket = 's3://testpsp/airlineresult';
+            dbName = 'myairlines.airlines';
+            resultBucket = 's3://athenapspunittest/airlineresult';
             distLimit = 1000;
             
             %% Connect to database
@@ -223,9 +223,9 @@ classdef TestAuthorization < matlab.unittest.TestCase
         end
         
         function doAlternativeInitialize(testCase, ath)
-            reg = getenv('REGION');
-            awsKeyId = getenv('AWSACCESSKEYID');
-            awsSecretKey = getenv('SECRETACCESSKEY');
+            reg = getenv('AWS_DEFAULT_REGION')
+            awsKeyId = getenv('AWS_ACCESS_KEY_ID')
+            awsSecretKey = getenv('AWS_SECRET_ACCESS_KEY')
             
             cp = aws.auth.CredentialProvider.getBasicCredentialProvider(awsKeyId, awsSecretKey);
             cls = 'software.amazon.awssdk.auth.credentials.StaticCredentialsProvider';
