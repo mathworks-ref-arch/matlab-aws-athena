@@ -3,11 +3,12 @@ classdef TestSimpleQuery < matlab.unittest.TestCase
     %
     % The test suite exercises the basic operations on the Athena Client.
     
-    % Copyright 2018-2019 The MathWorks, Inc.
+    % Copyright 2018-2021 The MathWorks, Inc.
     
     properties
         logObj
         dbName = 'myairlines.airlines';
+        % held in us-west-2
         resultBucket = 's3://athenapspunittest/airlineresult';
     end
     
@@ -20,7 +21,7 @@ classdef TestSimpleQuery < matlab.unittest.TestCase
     end
     
     methods (TestMethodTeardown)
-        function testTearDown(testCase)
+        function testTearDown(testCase) %#ok<MANU>
             
         end
     end
@@ -80,10 +81,10 @@ classdef TestSimpleQuery < matlab.unittest.TestCase
             end
             
             % Clear proxy values in Java
-            java.lang.System.clearProperty("http.proxyHost")
-            java.lang.System.clearProperty("http.proxyPort")
-            java.lang.System.clearProperty("http.proxyUser")
-            java.lang.System.clearProperty("http.proxyPassword")
+            java.lang.System.clearProperty("http.proxyHost");
+            java.lang.System.clearProperty("http.proxyPort");
+            java.lang.System.clearProperty("http.proxyUser");
+            java.lang.System.clearProperty("http.proxyPassword");
             
         end
         
@@ -92,10 +93,12 @@ classdef TestSimpleQuery < matlab.unittest.TestCase
             athena = aws.athena.AthenaClient();
             
             athena.ProxyConfiguration.host = getenv('TEST_PROXY');
-            athena.ProxyConfiguration.port = 3128;
-            
+            testCase.assertNotEmpty(athena.ProxyConfiguration.host, 'There must be a TEST_PROXY environment varaible present for proxy testing');
+            athena.ProxyConfiguration.port = str2double(getenv('TEST_PROXY_PORT'));
+            testCase.assertNotEmpty(athena.ProxyConfiguration.port, 'There must be a TEST_PROXY_PORT environment varaible present for proxy testing');
+
             if testCase.isOnGitlab
-                doAlternativeInitialize(testCase, athena)
+                doAlternativeInitialize(testCase, athena);
             else
                 athena.initialize();
             end
@@ -118,10 +121,10 @@ classdef TestSimpleQuery < matlab.unittest.TestCase
             end
             
             % Clear proxy values in Java
-            java.lang.System.clearProperty("http.proxyHost")
-            java.lang.System.clearProperty("http.proxyPort")
-            java.lang.System.clearProperty("http.proxyUser")
-            java.lang.System.clearProperty("http.proxyPassword")
+            java.lang.System.clearProperty("http.proxyHost");
+            java.lang.System.clearProperty("http.proxyPort");
+            java.lang.System.clearProperty("http.proxyUser");
+            java.lang.System.clearProperty("http.proxyPassword");
         end
         
         function fullTest(testCase)
@@ -143,9 +146,9 @@ classdef TestSimpleQuery < matlab.unittest.TestCase
             queryStr = sprintf('SELECT UniqueCarrier, distance FROM %s WHERE distance > %d;', ...
                 athena.Database, 1000);
             [queryId, queryStatus] = syncSubmitQuery(athena, ...
-                queryStr, testCase.resultBucket);
+                queryStr, testCase.resultBucket); %#ok<ASGLU>
             testCase.verifyEqual(queryStatus, 'SUCCEEDED', ...
-                'The query should be successful');
+                sprintf('The query should be SUCCEEDED, was %s', queryStatus));
             
             athena.shutdown();
             
@@ -155,10 +158,21 @@ classdef TestSimpleQuery < matlab.unittest.TestCase
     % Helper methods
     methods
         function doAlternativeInitialize(testCase, ath)
-            reg = getenv('AWS_DEFAULT_REGION')
-            awsKeyId = getenv('AWS_ACCESS_KEY_ID')
-            awsSecretKey = getenv('AWS_SECRET_ACCESS_KEY')
+            % Configure values before running local test e.g.:
+            % setenv('AWS_DEFAULT_REGION', 'us-west-2');
+            % setenv('AWS_ACCESS_KEY_ID', 'AS<REDACTED>7');
+            % setenv('AWS_SECRET_ACCESS_KEY', 'YB<REDACTED>h');
             
+            reg = getenv('AWS_DEFAULT_REGION');
+            testCase.assertNotEmpty(reg, 'There must be a AWS_DEFAULT_REGION environment varaible present for local testing');
+            if ~strcmpi(reg, 'us-west-2')
+                warning('Default unit test data held in: us-west-2, use this region');
+            end
+            awsKeyId = getenv('AWS_ACCESS_KEY_ID');
+            testCase.assertNotEmpty(awsKeyId, 'There must be a AWS_ACCESS_KEY_ID environment varaible present for local testing');
+            awsSecretKey = getenv('AWS_SECRET_ACCESS_KEY');
+            testCase.assertNotEmpty(awsSecretKey, 'There must be a AWS_SECRET_ACCESS_KEY environment varaible present for local testing');
+             
             cp = aws.auth.CredentialProvider.getBasicCredentialProvider(awsKeyId, awsSecretKey);
             cls = 'software.amazon.awssdk.auth.credentials.StaticCredentialsProvider';
             testCase.assertClass(cp, cls, sprintf('The CredentialsProvider should be of type "%s"\n', cls));

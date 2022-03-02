@@ -1,9 +1,9 @@
 function initialize(obj, varargin)
     % INITIALIZE Method to initialize the client handle.
     %
-    % This method is used for initializing the AhtenaClient object.
+    % This method is used for initializing the AthenaClient object.
     % When used without arguments, it will use the default AWS Credentials
-    % Provider and the default Region, by using the corrsponding chains.
+    % Provider and the default Region, by using the corresponding chains.
     %
     %   ath.initialize()
     %
@@ -34,8 +34,18 @@ function initialize(obj, varargin)
     logObj = Logger.getLogger();
     write(logObj,'debug','Initializing Athena client');
     
+    % Configure log4j if a properties file exists
+    % append the properties file location and configure it
+    % This is used by the SDK for logging
+    log4jPropertiesPath = fullfile(fileparts(fileparts(fileparts(fileparts(fileparts(fileparts(mfilename('fullpath'))))))), 'lib', 'jar', 'log4j.properties');
+    if exist(log4jPropertiesPath, 'file') == 2
+        org.apache.log4j.PropertyConfigurator.configure(log4jPropertiesPath);
+    else
+        write(logObj,'warning',['log4j.properties file not found: ', log4jPropertiesPath]);
+    end
+
     % Ensure that proxy settings are configured if required
-    % Direct Client configuration overrides MATALB preferences if set
+    % Direct Client configuration overrides MATLAB preferences if set
     useMATLABProxyPrefs(obj);
     
     builder = AthenaClient.builder();
@@ -73,7 +83,7 @@ end
 
 
 function httpClientBuilder = configProxyHttpClient(obj)
-    % By returning a builder to the upstream abuild the http client will be
+    % By returning a builder to the upstream build the http client will be
     % automatically closed
     
     if strlength(obj.ProxyConfiguration.host) > 0
@@ -91,7 +101,7 @@ function httpClientBuilder = configProxyHttpClient(obj)
             end
             proxyConfig = software.amazon.awssdk.http.apache.ProxyConfiguration.builder().build();
         else
-            % Use non system host and port, not supported by apache client, not clear why this does not work?
+            % Use non system host and port, not supported by Apache client, not clear why this does not work?
             proxyURI = java.net.URI([obj.ProxyConfiguration.host,':',num2str(obj.ProxyConfiguration.port)]); %#ok<UNRCH>
             proxyConfigBuilder = software.amazon.awssdk.http.apache.ProxyConfiguration.builder();
             if strlength(obj.ProxyConfiguration.username) > 0
@@ -116,7 +126,7 @@ end % function
 
 function useMATLABProxyPrefs(obj)
     % If the client's ProxyConfiguration host field is set already use it
-    % otherwise if the MATLAB proxy perference host field is set use it
+    % otherwise if the MATLAB proxy preference host field is set use it
     % otherwise do nothing
     
     if strlength(obj.ProxyConfiguration.host) == 0

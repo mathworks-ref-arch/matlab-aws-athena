@@ -4,7 +4,7 @@ function startup(varargin)
     % path. It will omit the SVN and other crud.  Modify undesired path
     % filters as desired.
     
-    % Copyright 2018-2019 The MathWorks, Inc.
+    % Copyright 2018-2021 The MathWorks, Inc.
     
     % Don't run the startup file if executed from within a deployed function (CTF)
     if ~isdeployed()
@@ -44,13 +44,13 @@ function iCheckDependencies(rootDir)
     
     if ~exist(commonDir, 'dir')
         % Cannot find the dependencies
-        error('AWS:DDB',['Could not locate common utilities at: ',commonDir]);
+        error('AWS:Athena',['Could not locate common utilities at: ',commonDir]);
     end
     
     % Check if the JAR file exists
     jarPath = iGetJarPath(rootDir);
     if ~exist(jarPath,'file')
-        error('AWS:DDB',['Could not locate jar file at: ',strrep(jarPath,'\','\\')]);
+        error('AWS:Athena',['Could not locate jar file at: ',strrep(jarPath,'\','\\')]);
     end
     
 end
@@ -72,6 +72,7 @@ function iAddInterfacePath(rootDir)
     interfaceDir = fullfile(rootDir,'Software','MATLAB');
     rootDirs={fullfile(interfaceDir,'app'),true;...
         fullfile(interfaceDir,'lib'),false;...
+        fullfile(interfaceDir,'config'),false;...
         fullfile(interfaceDir,'sys','modules'),true;...
         fullfile(interfaceDir,'public'),true;...
         };
@@ -168,7 +169,7 @@ function iSafeAddToJavaPath(pathStr)
     jPaths = javaclasspath('-dynamic');
     
     % Add to path if the file exists
-    if exist(pathStr,'dir')||exist(pathStr,'file')
+    if exist(pathStr,'dir') || exist(pathStr,'file')
         jarFound = any(strcmpi(pathStr, jPaths));
         if isempty(jarFound)
             jarFound = false;
@@ -178,10 +179,10 @@ function iSafeAddToJavaPath(pathStr)
             disp(['Adding ',pathStr]);
             javaaddpath(pathStr);
         else
-            disp(['Skipping: ',pathStr]);
+            disp(['Already present on class path, skipping: ',pathStr]);
         end
     else
-        disp(['Skipping ',pathStr]);
+        disp(['File not found, skipping ',pathStr]);
     end
     
 end

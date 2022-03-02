@@ -26,8 +26,8 @@
     </dependency>
   </dependencies>
   <properties>
-    <awsjava2sdk.version>2.16.83</awsjava2sdk.version>
-    <awsjavasdk.version>1.11.569</awsjavasdk.version>
+    <awsjava2sdk.version>2.17.99</awsjava2sdk.version>
+    <awsjavasdk.version>1.12.128</awsjavasdk.version>
     <junit.version>4.13.2</junit.version>
   </properties>
   <build>

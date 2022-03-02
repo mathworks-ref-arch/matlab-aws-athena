@@ -37,7 +37,7 @@ classdef TestAuthorization < matlab.unittest.TestCase
                 ath.initialize();
             end            
             
-            resultID = ath.submitQuery(queryStr, resultBucket);
+            resultID = ath.submitQuery(queryStr, resultBucket); %#ok<NASGU>
             
         end
         
@@ -146,7 +146,7 @@ classdef TestAuthorization < matlab.unittest.TestCase
             end
             
             try
-                resultID = ath.submitQuery(queryStr, resultBucket);
+                resultID = ath.submitQuery(queryStr, resultBucket); %#ok<NASGU>
             catch ex
                 testCase.assertTrue(false, 'This authentication method failed.\n%s\n', ex.message);
             end
@@ -223,9 +223,20 @@ classdef TestAuthorization < matlab.unittest.TestCase
         end
         
         function doAlternativeInitialize(testCase, ath)
-            reg = getenv('AWS_DEFAULT_REGION')
-            awsKeyId = getenv('AWS_ACCESS_KEY_ID')
-            awsSecretKey = getenv('AWS_SECRET_ACCESS_KEY')
+            % Configure values before running local test e.g.:
+            % setenv('AWS_DEFAULT_REGION', 'us-west-2');
+            % setenv('AWS_ACCESS_KEY_ID', 'AS<REDACTED>7');
+            % setenv('AWS_SECRET_ACCESS_KEY', 'YB<REDACTED>h');
+            
+            reg = getenv('AWS_DEFAULT_REGION');
+            testCase.assertNotEmpty(reg, 'There must be a AWS_DEFAULT_REGION environment varaible present for local testing');
+            if ~strcmpi(reg, 'us-west-2')
+                warning('Default unit test data held in: us-west-2, use this region');
+            end
+            awsKeyId = getenv('AWS_ACCESS_KEY_ID');
+            testCase.assertNotEmpty(awsKeyId, 'There must be a AWS_ACCESS_KEY_ID environment varaible present for local testing');
+            awsSecretKey = getenv('AWS_SECRET_ACCESS_KEY');
+            testCase.assertNotEmpty(awsSecretKey, 'There must be a AWS_SECRET_ACCESS_KEY environment varaible present for local testing');
             
             cp = aws.auth.CredentialProvider.getBasicCredentialProvider(awsKeyId, awsSecretKey);
             cls = 'software.amazon.awssdk.auth.credentials.StaticCredentialsProvider';
