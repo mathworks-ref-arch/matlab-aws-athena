@@ -1,5 +1,9 @@
 # MATLAB Interface *for AWS Athena* - Release Notes
 
+## Release 0.2.6 (25th Aug 2023)
+
+* Updated pom.xml to latest AWS SDK 2.20.133 BOM
+
 ## Release 0.2.5 (13th Dec 2021)
 
 * Updated pom.xml latest AWS 1.12.128 & 2.17.99 BOMs to include log4j updates
@@ -24,4 +28,4 @@
 
 ## Release 0.2.0 -- Initial public release
 
-[//]: #  (Copyright 2019-2021 The MathWorks, Inc.)
+[//]: #  (Copyright 2019-2023 The MathWorks, Inc.)
